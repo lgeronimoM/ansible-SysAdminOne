@@ -1,0 +1,20 @@
+---
+# Pruebas de firewalld
+- hosts: "{{ host }}"
+  tasks:
+    - name: correr servicio firewalld
+      service:
+        name: firewalld
+        state: started
+
+    - name: Habilitar los puertos
+      firewalld:
+        zone: public
+        port: 8083/tcp
+        permanent: yes
+        immediate: yes
+        state: enabled
+
+    - name: Disable SELinux
+      selinux:
+        state: disabled
