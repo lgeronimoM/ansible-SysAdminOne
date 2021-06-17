@@ -1,4 +1,7 @@
-- name: restart apache
+---
+- hosts: all
+  tasks:
+    - name: hacer un ping
       service:
-        name: apache2
+        name: nginx
         state: restarted
