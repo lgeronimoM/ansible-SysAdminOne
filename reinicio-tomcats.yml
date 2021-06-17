@@ -1,7 +1,7 @@
 ---
 - hosts: all
   tasks:
-    - name: hacer un ping
+    - name: reiniciar tomcat
       service:
-        name: nginx
+        name: tomcat
         state: restarted
