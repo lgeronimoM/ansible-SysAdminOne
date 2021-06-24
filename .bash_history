@@ -1,20 +1,4 @@
 cd
-ssh 192.168.3.106
-exit
-cd
-ll
-tar -zxvf ansible.tar.gz 
-ls
-cd roles/
-ls
-ping 10.190.5.32
-cd installKafkaConnect/
-ll
-cd files/
-ll
-vi /etc/ansible/ansible.cfg 
-sudo vi /etc/ansible/ansible.cfg 
-cd
 ls 
 mv  hosts  inventory
 ll
@@ -995,4 +979,22 @@ cat manageCustomUsers.yml
 cat /etc/ansible/ansible.cfg 
 exit
 sudo -i
+exit
+sudo -i
+ll
+git status
+git init
+git status
+git pull origin master
+git config --global user.email "lmgs794@gmail.com"
+git config --global user.name "lgeronimoM"
+git commit -m "projects production v1.0"
+git add .
+git commit -m "projects production v1.0"
+it remote add origin https://github.com/lgeronimoM/ansible-SysAdminOne.git
+git remote add origin https://github.com/lgeronimoM/ansible-SysAdminOne.git
+git push -u origin master
+git pull origin master 
+git push -u origin master
+ll
 exit
