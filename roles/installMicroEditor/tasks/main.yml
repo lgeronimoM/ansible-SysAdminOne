@@ -1,0 +1,13 @@
+---
+# tasks file for installMicroEditor
+- name: Install micro editor
+  become: true
+  shell: '{{ micro_editor.shell }}'
+  args:
+    chdir: '{{ micro_editor.path_install }}'
+- name: Enable micro for sudo
+  become: true
+  file:
+    src: '{{ micro_editor.path_install }}/micro'
+    dest: '{{ micro_editor.path_sudoers}}'
+    state: link

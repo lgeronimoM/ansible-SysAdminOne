@@ -1,0 +1,85 @@
+---
+# tasks file for installNginx
+- name: Install apps
+  become: true
+  yum:
+    name: '{{ item }}'
+    state: latest
+  with_items: '{{ apps }}'
+  when: "{{ install_nginx is undefined or install_nginx=='yes' }}" #viene del playbook installIntranet
+
+- name: Configure for Tomcat
+  block:
+    - name: 'Create web directory {{ nginx.server.tomcat.root }}'
+      become: true
+      file:
+        path: '{{ nginx.server.tomcat.root }}'
+        state: directory
+        mode: "u=rw,g=rw,o=rwx"
+    - name: Add ports firewall
+      become: true
+      firewalld:
+        port: '{{ item }}'
+        permanent: true
+        state: enabled
+      with_items: '{{ firewall.ports.tomcat }}'
+    - name: Restart firewall
+      become: true
+      service:
+        name: firewalld
+        state: restarted
+    - name: Configure Nginx
+      become: true
+      template:
+        src: '{{ item.src }}'
+        dest: '{{ item.dest }}'
+        backup: yes
+      with_items: '{{ nginx.tomcat.templates }}'
+    - name: Fix SELinux issue
+      become: true
+      command: '{{ item }}'
+      with_items: '{{ selinux.aut.tomcat }}'                                                
+  when: configure_nginx_for=="tomcat"| default('no')   #viene del playbook installIntranet
+              
+- name: Configure for PHP 7
+  block:
+    - name: 'Create web directory {{ nginx.server.php.root }}'
+      become: true
+      file:
+        path: '{{ nginx.server.php.root }}'
+        state: directory
+        mode: "u=rw,g=rw,o=rwx"
+    - name: Add ports firewall
+      become: true
+      firewalld:
+        port: '{{ item }}'
+        permanent: true
+        state: enabled
+      with_items: '{{ firewall.ports.php }}'
+    - name: Restart firewall
+      become: true
+      service:
+        name: firewalld
+        state: restarted
+    - name: Configure Nginx
+      become: true
+      template:
+        src: '{{ item.src }}'
+        dest: '{{ item.dest }}'
+        backup: yes
+      with_items: '{{ nginx.php.templates }}'
+    - name: Fix SELinux issue
+      become: true
+      command: '{{ item }}'
+      with_items: '{{ selinux.aut.php }}'
+  when: configure_nginx_for is undefined or configure_nginx_for=="php" or configure_nginx_for=="php5" #viene del playbook installIntranet
+  
+- name: Start / Restart service
+  become: true
+  service: 
+    name: nginx
+    state: restarted
+    enabled: '{{ nginx.service_enabled }}'
+  when: "{{ restart_nginx is undefined or restart_nginx=='yes' }}"
+        
+      

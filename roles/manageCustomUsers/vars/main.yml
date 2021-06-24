@@ -1,0 +1,15 @@
+---
+# vars file for roles/addCustomUsers
+
+usuario:
+  - juan.zamora
+grupo: sysadmin
+email: samuel.resendiz@encontrack.com, luis.geronimo@encontrack.com, aaron.rodriguez@encontrack.com
+# email: luis.geronimo@encontrack.com, samuel.resendiz@encontrack.com, oscar.acosta@encontrack.com, alejandro.valdez@encontrack.com
+
+# STMP SERVER OFFICE 365
+
+smtp_server: smtp.office365.com
+puerto: 587
+user_email: servers@encontrack.com
+pass: Tav76551

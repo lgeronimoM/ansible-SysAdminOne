@@ -1,0 +1,328 @@
+---
+# tasks file for roles/kafka-connect
+- name: Install epel
+  yum:
+    name: epel-release
+    state: latest
+
+- name: Instalando dependencias {{ pkgs }}
+  become: true
+  yum:
+    name: "{{ pkgs }}"
+    state: latest
+
+- name: import rpm url key
+  rpm_key:
+    key: "{{ keyConfluent }}"
+    state: present
+
+- name: Copiar confluent.repo a nodo administrado.
+  copy:
+    src: confluent.repo
+    dest: /etc/yum.repos.d/
+    owner: root
+    group: root
+    mode: '0644'
+    
+- name: Limpiar cache de repositorio.
+  command: /usr/bin/yum clean all
+  args:
+    warn: no
+
+- name: Instalar repositorio confluent-community
+  yum:
+    name: "{{ CFCpkg }}"
+    state: present
+
+- name: correr servicio firewalld
+  service:
+    name: firewalld
+    state: started
+
+- name: Deshabilitar SELinux
+  selinux:
+    state: disabled
+
+- name: correr servicio firewalld
+  service:
+    name: firewalld
+    state: started
+
+- name: Habilitar los puertos
+  firewalld:
+    zone: public
+    port: 8083/tcp
+    permanent: yes
+    immediate: yes
+    state: enabled
+    
+- name: Create directory confluent
+  file:
+    path: "{{ dirCFhub }}"
+    state: directory
+    
+- name: Dowload and extract confluent-hub-client.tgz into home kafka-connect
+  unarchive:
+    src:  "{{ CFHubClient }}"
+    dest: "{{ dirCFhub }}"
+    remote_src: yes
+
+- name: Crear link simbolico confluen-hub.
+  file:
+    src: "{{ dirCFhub }}/bin/confluent-hub"
+    dest: /bin/confluent-hub
+    state: link
+
+- name: Instalacion Kafka Connect desde Confluent Hub
+  shell: "/usr/share/java/confluent-hub-client/bin/confluent-hub install --no-prompt --component-dir {{kafka_connect_confluent_hub_plugins_dest}} {{item}}"
+  with_items: "{{kafka_connect_confluent_hub_plugins}}"
+  when: kafka_connect_confluent_hub_plugins|length > 0
+
+  
+- name: Template a file ZIP kafka connect to repo destination 
+  copy:
+    src: "{{ restZIP }}"
+    dest: /usr/share/java
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: extract ZIP kafka connec custom
+  unarchive:
+    src:  "{{ dirJava }}/{{ restZIP }}"
+    dest: "{{ dirJava }}"
+    remote_src: yes
+
+- name: Crear directorio kafka-connect-http
+  file:
+    path: "{{ dirJava }}/kafka-connect-http"
+    state: directory
+
+- name: Crear directorio kafka-connect-json-transformation
+  file:
+    path: "{{ dirJava }}/kafka-connect-json-transformation"
+    state: directory
+    
+- name: Descargar JAR kafka-connect-jdbc-cache.jar Nexus
+  maven_artifact:
+    group_id: io.confluent.connect.jdbc
+    artifact_id: kafka-connect-jdbc-cache
+    repository_url: "{{ enkRepoReleases }}"
+    username: enk_deploy
+    password: encontrack2020
+    version: 1.2.2
+    dest: "{{ dirJava }}/kafka-connect-jdbc/kafka-connect-jdbc-cache.jar"
+    owner: root
+    group: root
+    mode: '644'
+
+- name: Descargar JAR cachedb.jar Nexus
+  maven_artifact:
+    group_id: com.intersys
+    artifact_id: cache-db
+    repository_url: "{{ enkRepo }}"
+    username: enk_deploy
+    password: encontrack2020
+    version: latest
+    dest: "{{ dirJava }}/kafka-connect-jdbc/cachedb.jar"
+    owner: root
+    group: root
+    mode: '644'
+ 
+- name: Descargar JAR cachejdbc.jar Nexus
+  maven_artifact:
+    group_id: com.intersys
+    artifact_id: cache-jdbc
+    repository_url: "{{ enkRepo }}"
+    username: enk_deploy
+    password: encontrack2020
+    version: latest
+    dest: "{{ dirJava }}/kafka-connect-jdbc/cachejdbc.jar"
+    owner: root
+    group: root
+    mode: '644'
+
+- name: Descargar JAR kafka-connect-http.jar Nexus
+  maven_artifact:
+    group_id: uk.co.threefi
+    artifact_id: kafka-connect-http
+    repository_url: "{{ enkRepoReleases }}"
+    username: enk_deploy
+    password: encontrack2020
+    version: latest
+    dest: "{{ dirJava }}/kafka-connect-http/kafka-connect-http.jar"
+    owner: root
+    group: root
+    mode: '644'
+
+- name: Descargar JAR jsonstruct.jar transformation Nexus
+  maven_artifact:
+    group_id: com.encontrack.kafka.connect.transform
+    artifact_id: jsonstruct
+    repository_url: "{{ enkRepoReleases }}"
+    username: enk_deploy
+    password: encontrack2020
+    version: latest
+    dest: "{{ dirJava }}/kafka-connect-json-transformation/jsonstruct.jar"
+    owner: root
+    group: root
+    mode: '644'
+
+- name: Descargar JAR mysql-connector-java.jar Nexus
+  maven_artifact:
+    group_id: mysql
+    artifact_id: mysql-connector-java
+    repository_url: 'https://nexus.encontrack.com/repository/maven-enk/'
+    username: enk_deploy
+    password: encontrack2020
+    version: 8.0.18
+    dest: "{{ dirJava }}/kafka-connect-jdbc/mysql-connector-java.jar"
+    owner: root
+    group: root
+    mode: '644'
+          
+- name: Eliminar y respaldar archivo viejo connect-log4j.properties
+  file:
+    path: /etc/kafka/connect-log4j.properties
+    backup: yes
+    state: absent
+    
+- name: Copiar archivo template connect-log4j.properties
+  copy:
+    src: connect-log4j.properties
+    dest: /etc/kafka/
+    owner: root
+    group: root
+    mode: '0644'  
+
+# Reemplazo de parametros 
+
+- name: bootstrap servers {{ bootstrapservers }}.
+  lineinfile:
+    path: /etc/kafka/connect-distributed.properties
+    regexp: '^bootstrap.servers='
+    line: "bootstrap.servers={{ bootstrapservers }}"
+
+- name: groupid {{ groupid }}.
+  lineinfile:
+    path: /etc/kafka/connect-distributed.properties
+    regexp: '^group.id='
+    line: "group.id={{ groupid }}"
+
+- name: offset_storage_topic {{ offset_storage_topic }}.
+  lineinfile:
+    path: /etc/kafka/connect-distributed.properties
+    regexp: '^offset.storage.topic='
+    line: "offset.storage.topic={{ offset_storage_topic }}"
+
+#- name: interval_topic {{ interval_topic }}.
+#  lineinfile:
+#    path: /etc/kafka/connect-distributed.properties
+#    regexp: '^offset.flush.interval.ms='
+#    line: "offset.flush.interval.ms={{ interval_topic }}"
+
+#- name: timeout_topic {{ timeout_topic }}.
+#  lineinfile:
+#    path: /etc/kafka/connect-distributed.properties
+#    regexp: '^offset.flush.timeout.ms='
+#    line: "offset.flush.timeout.ms={{ timeout_topic }}"
+
+- name: interval_topic {{ replication_topic }}.
+  lineinfile:
+    path: /etc/kafka/connect-distributed.properties
+    regexp: '^offset.storage.replication.factor'
+    line: "offset.storage.replication.factor={{ replication_topic }}"
+
+- name: timeout_topic {{ partitions_topic }}.
+  lineinfile:
+    path: /etc/kafka/connect-distributed.properties
+    regexp: '^offset.storage.partitions.factor='
+    line: "offset.storage.partitions.factor={{ partitions_topic }}"
+
+- name: storage_topic_configs {{ storage_topic_configs }}.
+  lineinfile:
+    path: /etc/kafka/connect-distributed.properties
+    regexp: '^config.storage.topic='
+    line: "config.storage.topic={{ storage_topic_configs }}"
+
+- name: replication_topic_configs {{ replication_topic_configs }}.
+  lineinfile:
+    path: /etc/kafka/connect-distributed.properties
+    regexp: '^config.storage.replication.factor='
+    line: "config.storage.replication.factor={{ replication_topic_configs }}"
+
+- name: partitions_topic_configs {{ partitions_topic_configs }}.
+  lineinfile:
+    path: /etc/kafka/connect-distributed.properties
+    regexp: '^#config.storage.partitions='
+    line: "config.storage.partitions={{ partitions_topic_configs }}"
+
+- name: storage_topic_status {{ storage_topic_status }}.
+  lineinfile:
+    path: /etc/kafka/connect-distributed.properties
+    regexp: '^status.storage.topic='
+    line: "status.storage.topic={{ storage_topic_status }}"
+
+- name: replication_topic_status {{ replication_topic_status }}.
+  lineinfile:
+    path: /etc/kafka/connect-distributed.properties
+    regexp: '^status.storage.replication.factor='
+    line: "status.storage.replication.factor={{ replication_topic_status }}"
+
+- name: partitions_topic_status {{ partitions_topic_status }}.
+  lineinfile:
+    path: /etc/kafka/connect-distributed.properties
+    regexp: '^#status.storage.partitions='
+    line: "status.storage.partitions={{ partitions_topic_status }}"
+
+#- name: rest.host.name {{ ansible_ens160.ipv4.address }}.
+#  lineinfile:
+#    path: /etc/kafka/connect-distributed.properties
+#    regexp: '^rest.host.name'
+#    line: "rest.host.name={{ ansible_ens160.ipv4.address }}"
+
+#- name: rest.advertised.host.name {{ ansible_ens160.ipv4.address }}.
+#  lineinfile:
+#    path: /etc/kafka/connect-distributed.properties
+#    regexp: '^#rest.advertised.host.name'
+#    line: "rest.advertised.host.name={{ ansible_ens160.ipv4.address }}"
+
+
+- name: rest.host.name {{ ansible_ens192.ipv4.address }}.
+  lineinfile:
+    path: /etc/kafka/connect-distributed.properties
+    regexp: '^rest.host.name'
+    line: "rest.host.name={{ ansible_ens192.ipv4.address }}"
+
+- name: rest.advertised.host.name {{ ansible_ens192.ipv4.address }}.
+  lineinfile:
+    path: /etc/kafka/connect-distributed.properties
+    regexp: '^#rest.advertised.host.name'
+    line: "rest.advertised.host.name={{ ansible_ens192.ipv4.address }}"
+
+- name: rest.advertised.port {{ port_kafka_connect }}.
+  lineinfile:
+    path: /etc/kafka/connect-distributed.properties
+    regexp: '^rest.advertised.port='
+    line: "rest.advertised.port={{ port_kafka_connect }}"
+
+- name: Create directory log kafka-connect
+  file:
+    path: /var/log/kafka-connect
+    owner: cp-kafka
+    group: confluent
+    mode: '0755'
+    state: directory
+
+- name: ensure file connect.log exists
+  file:
+    path: /var/log/kafka-connect/connect.log
+    state: touch
+    owner: cp-kafka-connect
+    group: confluent
+    mode: 0666
+
+#- name: Correr servicio {{srv_confluent_kafka_connect}}, si no esta started
+#  service:
+#    name: "{{srv_confluent_kafka_connect}}"
+#    state: started

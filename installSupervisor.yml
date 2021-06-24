@@ -1,0 +1,5 @@
+---
+- hosts: awsflotcon
+  name: Instala Tomcat
+  roles:
+    - supervisor

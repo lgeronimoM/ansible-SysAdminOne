@@ -1,0 +1,5 @@
+---
+- hosts: "{{ host }}"
+  name: 'Instala y configura kafka-connect'
+  roles:
+    - installKafkaConnect

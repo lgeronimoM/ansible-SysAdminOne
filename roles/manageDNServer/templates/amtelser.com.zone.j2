@@ -1,0 +1,46 @@
+$ORIGIN amtelser.com.
+$TTL 86400
+@   IN  SOA     masterdns.amtelser.com. root.amtelser.com. (
+	{{ serialZone }}  ;Serial
+        3600        ;Refresh
+        1800        ;Retry
+        604800      ;Expire
+        86400       ;Minimum TTL
+)
+@       IN  NS          masterdns.amtelser.com.
+@       IN  NS          slavedns1.amtelser.com.
+@       IN  NS          slavedns2.amtelser.com.
+@       IN  A           99.192.255.83
+@       IN  A           99.192.255.83
+slavedns1       IN  A   10.10.4.32
+slavedns2       IN  A   10.190.4.32
+masterdns       IN  A   10.190.5.230
+www             IN  A   99.192.255.83
+aagelectronica		A	99.192.255.83
+mail			A	99.192.255.83
+webmail			A	99.192.255.83
+ftp			A	10.190.5.40
+test-flotcon		A	18.218.94.50
+test			A	10.10.0.134
+siscom-tools01-adm	A	10.190.5.162
+monitorsiscom		A	10.190.5.162
+siscom01-coms		A	10.190.6.163
+siscom02-coms		A	10.190.6.164
+siscom03-coms		A	10.190.6.165
+siscom04-coms		A	10.190.6.166
+siscom05-coms		A	10.190.6.167
+siscom06-coms		A	10.190.6.168
+siscom07-coms		A	10.190.6.169
+siscom08-coms		A	10.190.6.171
+siscom09-coms		A	10.190.6.197
+siscom10-coms		A	10.190.6.223
+siscom01-adm		A	10.190.5.163
+siscom02-adm		A	10.190.5.164
+siscom03-adm		A	10.190.5.165
+siscom04-adm		A	10.190.5.166
+siscom05-adm		A	10.190.5.167
+siscom06-adm		A	10.190.5.168
+siscom07-adm		A	10.190.5.169
+siscom08-adm		A	10.190.5.171
+siscom09-adm		A	10.190.5.197
+siscom10-adm		A	10.190.5.223

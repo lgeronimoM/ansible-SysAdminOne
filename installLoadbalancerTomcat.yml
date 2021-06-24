@@ -1,0 +1,5 @@
+---
+- hosts: '{{ host }}'
+  name: Instala un loadbalancer para tomcat
+  roles:
+    - installLoadbalancerTomcat

@@ -1,0 +1,11 @@
+<VirtualHost *:{{ apache.port }}>
+    <Proxy balancer://{{ apache.loadbalancer.name }}>
+        {% for server in apache.loadbalancer.servers %}
+        BalancerMember "{{ server }}"
+        {% endfor %}
+    </Proxy>
+    ProxyPreserveHost On
+    
+    ProxyPass / balancer://{{ apache.loadbalancer.name }}/
+    ProxyPassReverse / balancer://{{ apache.loadbalancer.name }}/
+</VirtualHost>

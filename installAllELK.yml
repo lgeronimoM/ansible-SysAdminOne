@@ -1,0 +1,5 @@
+---
+- hosts: '{{ host }}'
+  name: Instala ElasticSearch Kibana Logstash filebeat 
+  roles:
+    - installAllELK

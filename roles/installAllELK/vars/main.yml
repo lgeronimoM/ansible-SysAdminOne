@@ -1,0 +1,39 @@
+---
+# vars file for installAllELK
+rpms:
+#  - "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.2.4.rpm"
+#  - "https://artifacts.elastic.co/downloads/kibana/kibana-6.2.4-x86_64.rpm"
+#  - "https://artifacts.elastic.co/downloads/logstash/logstash-6.2.4.rpm"
+#  - "https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-6.2.4-x86_64.rpm"
+  - "epel-release"
+  - "java-1.8.0-openjdk"
+  - "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.2.rpm"
+  - "https://artifacts.elastic.co/downloads/kibana/kibana-6.3.2-x86_64.rpm"
+  - "https://artifacts.elastic.co/downloads/logstash/logstash-6.3.2.rpm"
+  - "nginx"
+  - "httpd-tools"
+  - "python-passlib"
+elastic:
+  configPath: "/etc/elasticsearch/elasticsearch.yml"  
+  configTemplate: "elasticsearch.j2"
+  httpPort: 9200
+kibana:
+  configPath: "/etc/kibana/kibana.yml"
+  configTemplate: "kibana.j2"
+  serverPort: 5601
+  serverHost: "{{ inventory_hostname }}"
+  elasticsearchUrl: "http://localhost:9200"
+  user: enk
+  pwd: enk
+nginx:
+  configPath: "/etc/nginx/conf.d/"
+  configTemplate: "nginx.j2"
+  port: 80
+  htPath: "/etc/nginx/htpasswd.kibana"
+  htName: "admin"
+  htPwd: "admin"
+  
+logstash:
+  rpm: "https://artifacts.elastic.co/downloads/logstash/logstash-6.2.4.rpm" 
+filebeat:
+  rpm: "https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-6.2.4-x86_64.rpm"  

@@ -1,0 +1,21 @@
+$ORIGIN	flotcon.com.
+$TTL 86400
+@   IN  SOA     masterdns.flotcon.com. root.flotcon.com. (
+        {{ serialZone }}  ;Serial
+        3600        ;Refresh
+        1800        ;Retry
+        604800      ;Expire
+        86400       ;Minimum TTL
+)
+@       IN  NS          masterdns.flotcon.com.
+@       IN  NS          slavedns1.flotcon.com.
+@       IN  NS          slavedns2.flotcon.com.
+@       IN  A           99.192.255.83
+@       IN  A         	99.192.255.83
+slavedns1       IN  A   10.10.4.32
+slavedns2       IN  A   10.190.4.32
+masterdns       IN  A   10.190.5.230
+www             IN  A   99.192.255.83
+flotcon		A	99.192.255.83
+blog		A	23.229.199.199
+recursos	A	184.25.63.49

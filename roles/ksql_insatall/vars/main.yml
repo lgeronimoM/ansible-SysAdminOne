@@ -1,0 +1,23 @@
+---
+# vars file for roles/ksql_insatall
+
+# Propiedades de configuracion del archivo ksql-server.properties
+
+#QRO
+#kafka: '10.10.4.33:9092,10.10.4.109:9092'
+
+#AWS
+kafka: 'b-1.msk-encontrack.wh5d7c.c6.kafka.us-east-1.amazonaws.com:9092,b-2.msk-encontrack.wh5d7c.c6.kafka.us-east-1.amazonaws.com:9092,b-3.msk-encontrack.wh5d7c.c6.kafka.us-east-1.amazonaws.com:9092'
+
+ip_listen: 'aws-ksql-02.eps-encontrack.com'
+
+# Propiedades de instalacion KSQL
+ 
+packapp: 
+  - curl
+  - which
+  - java-1.8.0-openjdk
+repo: /etc/yum.repos.d/
+keyConfluent: 'https://packages.confluent.io/rpm/5.5/archive.key'
+dir_ksql: /etc/ksqldb/
+confluenapp: confluent-platform-2.12

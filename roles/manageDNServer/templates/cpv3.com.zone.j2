@@ -1,0 +1,20 @@
+$ORIGIN	cpv3.com.
+$TTL 86400
+@   IN  SOA     masterdns.cpv3.com. root.cpv3.com. (
+        {{ serialZone }}  ;Serial
+        3600        ;Refresh
+        1800        ;Retry
+        604800      ;Expire
+        86400       ;Minimum TTL
+)
+@       IN  NS          masterdns.cpv3.com.
+@       IN  NS          slavedns1.cpv3.com.
+@       IN  NS          slavedns2.cpv3.com.
+@       IN  A           99.192.255.83
+@       IN  A           99.192.255.83
+slavedns1       IN  A   10.10.4.32
+slavedns2       IN  A   10.190.4.32
+masterdns       IN  A   10.190.5.230
+www             IN  A   99.192.255.83
+cpv3			A	99.192.255.83
+miflota			A	10.190.5.40

@@ -1,0 +1,34 @@
+---
+# vars file for installPHP
+apps:
+  pre:
+    - 'https://mirror.webtatic.com/yum/el7/webtatic-release.rpm'
+    - policycoreutils-python    
+  php:
+    - php72w-fpm
+    - php72w-opcache
+    - php72w-common
+    - php72w-soap
+
+php:
+  service_enable: yes
+  webs_config_path: '/Aplicaciones' #Path de configuraciones de los sitios
+  user: webuser
+  group: webuser
+  user_pwd: encontrack
+  path_web: /var/www/html/
+  path_conf_apps: /Aplicaciones
+  path_session: /var/lib/php/session
+  config_file: /etc/php.ini
+  listen_fastcgi: '0.0.0.0:9000'
+  listen_allowed_clients: '{{ inventory_hostname }}'
+  pm_max_children: 50
+  templates:
+    - { 'src':'php.j2', 'dest':'/etc/php.ini' }
+    - { 'src': 'www.j2', 'dest':'/etc/php-fpm.d/www.conf'}
+
+selinux:
+  aut:
+    - restorecon -R /Aplicaciones
+    - chcon -R -t httpd_sys_rw_content_t /Aplicaciones
+    - setsebool -P httpd_can_network_connect 1

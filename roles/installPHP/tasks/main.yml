@@ -1,0 +1,69 @@
+---
+# tasks file for installPHP
+- name: Install prerequisites
+  become: true
+  yum:
+    name: '{{ item }}'
+    state: present
+  with_items: '{{ apps.pre }}'
+
+- name: Install PHP
+  become: true
+  yum:
+    name: '{{ item }}'
+    state: present
+  with_items: '{{ apps.php }}'
+
+- name: Configure PHP
+  block:
+    - name: Create user "{{ php.user }}"
+      become: true
+      user:
+        name: '{{ php.user }}'
+#        group: {{ php.group }}
+        comment: Usuario para la web php
+        password: '{{ php.user_pwd }}'
+    - name: 'Configura archivo de php y php-fpm'
+      become: true
+      template:
+        src: '{{ item.src }}'
+        dest: '{{ item.dest }}'
+        backup: yes
+      with_items: '{{ php.templates }}'
+    - name: 'Establece pagina de estatus de php'
+      become: true
+      copy:
+        src: info.php
+        dest: '{{ php.path_web }}'
+    - name: 'Create webs config directory {{ php.webs_config_path }}'
+      become: true
+      file:
+        path: '{{ php.webs_config_path }}'
+        state: directory
+        mode: 0764
+    - name: 'Create apps config directory {{ php.path_conf_apps }}'
+      become: true
+      file: 
+        path: '{{ php.path_conf_apps }}'
+        state: directory
+        mode: 0766
+    - name: 'Create session dir '
+      become: true
+      file:
+        path: '{{ php.path_session }}'
+        state: directory
+        mode: 0766
+        group: '{{ php.group }}'
+        owner: '{{ php.user }}'
+    - name: Fix SELinux issue
+      become: true
+      command: '{{ item }}'
+      with_items: '{{ selinux.aut }}'
+
+- name: Start Service
+  become: true
+  service:
+    name: php-fpm
+    state: restarted
+    enabled: '{{ php.service_enable }}'
+

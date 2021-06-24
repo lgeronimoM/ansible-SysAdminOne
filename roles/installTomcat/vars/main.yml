@@ -1,0 +1,37 @@
+---
+# vars file for installTomcat
+prereq:
+  apps:
+    - java-1.8.0-openjdk.x86_64
+    - java-1.8.0-openjdk-devel.x86_64
+tomcat:
+  download_path: /usr/local/
+  name: 'ws11.1'
+  url: 'https://downloads.apache.org/tomcat/tomcat-9/v9.0.43/bin/apache-tomcat-9.0.43.tar.gz'
+  path_install: 'apache-tomcat-9.0.43'
+  path: /usr/local/tomcat/
+  user: 'admin'
+  pwd: 'encontrack'
+  connection_timeout: 2000
+  templates:
+    - { 'mode':600, 'src':'tomcat-users.j2', 'dest':'/usr/local/tomcat/conf/tomcat-users.xml' }
+    - { 'mode':600, 'src':'server.j2', 'dest':'/usr/local/tomcat/conf/server.xml' }
+    - { 'mode':600, 'src':'web.j2', 'dest':'/usr/local/tomcat/conf/web.xml' }
+    - { 'mode':640, 'src':'context.j2', 'dest':'/usr/local/tomcat/webapps/manager/META-INF/context.xml' }
+    - { 'mode':731, 'src':tomcat_service.j2, 'dest':'/etc/systemd/system/tomcat.service'}    
+  ports:
+    shutdown: 8005
+    endpoint: 8080
+    redirect: 8443
+    ajp: 8009
+  firewall:
+    - 8080/tcp
+    - 80/tcp
+    - 22/tcp
+    - 443/tcp
+    - 8084/tcp
+selinux:
+  aut:
+    - restorecon -R /Aplicaciones
+        
+  

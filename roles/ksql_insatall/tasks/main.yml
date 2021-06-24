@@ -1,0 +1,103 @@
+---
+# tasks file for roles/ksql_insatall
+
+- name: Instalar epel
+  yum:
+    name: epel-release
+    state: latest
+
+- name: Instalar {{ packapp }}
+  yum:
+    name: '{{ packapp }}'
+    state: latest
+
+- name: Importar rpm url key
+  rpm_key:
+    key: "{{ keyConfluent }}"
+    state: present
+
+- name: Copiar confluent.repo en {{ repo }}.
+  copy:
+    src: confluent.repo
+    dest: '{{ repo }}'
+    owner: root
+    group: root
+
+- name: Limpiar cache de repositorio.
+  command: /usr/bin/yum clean all
+  args:
+    warn: no
+
+- name: Instalar repositorio {{ confluenapp }}
+  yum:
+    name: '{{ confluenapp }}'
+    state: present
+
+- name: Copiar ksql-server.properties {{ dir_ksql }}.
+  template:
+    src: ksql-server.properties.j2
+    dest: '{{ dir_ksql }}ksql-server.properties'
+    owner: root
+    group: root
+
+- name: Create directory streams /var/lib/kafka-streams
+  file:
+    path: /var/lib/kafka-streams
+    owner: cp-ksql
+    group: confluent
+    mode: '0755'
+    state: directory
+
+- name: Create directory log ksql
+  file:
+    path: /var/log/confluent/ksql
+    owner: cp-ksql
+    group: confluent
+    mode: '0755'
+    state: directory
+
+- name: Create directory log ksql /usr/logs/ksql-cli/
+  file:
+    path: /usr/logs/ksql-cli
+    owner: cp-ksql
+    group: confluent
+    mode: '0755'
+    state: directory
+
+- name: Create directory log kafka-streams
+  file:
+    path: /var/lib/kafka-streams
+    owner: cp-ksql
+    group: confluent
+    mode: '0755'
+    state: directory
+
+#- name: Deshabilitar SELinux
+#  selinux:
+#    state: disabled
+
+#- name: correr servicio firewalld
+#  service:
+#    name: firewalld
+#    state: started
+
+#- name: Habilitar los puertos
+#  firewalld:
+#    zone: public
+#    port: 9092/tcp
+#    permanent: yes
+#    immediate: yes
+#    state: enabled
+
+#- name: Habilitar los puertos
+#  firewalld:
+#    zone: public
+#    port: 8088/tcp
+#    permanent: yes
+#    immediate: yes
+#    state: enabled
+
+- name: Iniciar servicio ksql
+  service:
+    name: confluent-ksqldb
+    state: started

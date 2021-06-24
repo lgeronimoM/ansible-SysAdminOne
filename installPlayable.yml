@@ -1,0 +1,10 @@
+---
+- hosts: '{{ host }}'
+  name: Instala Ansible Playable
+  vars:
+    ansibleplayable:
+      src: 'https://github.com/mmumshad/ansible-playable.git'
+      dst: '/data/web-app'
+      datapath: '/data/db/'
+  roles:
+    - installPlayable

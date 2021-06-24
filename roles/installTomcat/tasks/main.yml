@@ -1,0 +1,110 @@
+---
+# tasks file for installTomcat
+- name: Install Prerequisites
+  block:
+    - name: Install Java
+      become: true
+      yum:
+        name: '{{ item }}'
+        state: present
+      with_items: '{{ prereq.apps }}'
+
+- name: Install Tomcat
+  block:
+    - name: Create user Tomcat
+      become: true
+      user:
+        name: tomcat
+        shell: '/bin/false'
+        system: yes
+        create_home: no
+    - name: Download & extract tomcat
+      become: true
+      unarchive:
+        src: '{{ tomcat.url }}'
+        dest: '{{ tomcat.download_path }}'
+        owner: tomcat
+        group: tomcat
+        mode: 
+        remote_src: yes
+    - name: Check if service exist
+      become: true
+      stat: path=/etc/systemd/system/tomcat.service
+      register: service_status
+    - debug: var=service_status
+    - name: Stop service if exist [{{ service_status.stat.exists }}]
+      become: true
+      service:
+        name: tomcat
+        state: stopped
+      when: service_status.stat.exists
+    - name: Check if directory exist [ {{ tomcat.path }} ]
+      become: true
+      stat:
+        path: '{{ tomcat.path }}'
+      register: directory_status
+    - debug: var=directory_status
+    - name: Backup directory if exists [ {{ directory_status.stat.exists }} ]
+      become: true
+      archive:
+        path: '{{ tomcat.path }}'
+        dest: "{{ tomcat.download_path }}tomcat-{{ lookup('pipe', 'date +%Y%m%d-%H%M%s') }}.bck.gz"
+      when: service_status.stat.exists
+    - name: Delete directory if exists [ {{ directory_status.stat.exists }} ]
+      become: true
+      file:
+        path: '{{ tomcat.path }}'
+        state: absent
+      when: service_status.stat.exists
+    - name: Move to tomcat
+      become: true
+      command: mv {{ tomcat.download_path }}{{ tomcat.path_install }} {{ tomcat.path }}
+    - name: Export Environment variable
+      become: true
+      shell: |
+        echo "export CATALINA_HOME='/opt/tomcat/'" >> ~/.bashrc
+        source ~/.bashrc
+    - name: Configure files
+      become: true
+      template:
+        src: '{{ item.src }}'
+        dest: '{{ item.dest }}'
+        mode: '{{ item.mode }}'
+        backup: yes
+      with_items: '{{ tomcat.templates }}'
+    - name: Configura firewall
+      become: true
+      firewalld:
+        port: '{{ item }}'
+        permanent: true
+        state: enabled
+      with_items: '{{ tomcat.firewall }}'
+    - name: Daemon reload
+      become: true
+      systemd:
+        name: tomcat
+        state: started 
+        daemon_reload: yes
+        enabled: yes
+    - name: Start Firewall
+      become: true
+      service:
+        name: firewalld
+        state: restarted
+        enabled: yes
+    - name: Create /Aplicaciones directory
+      become: true
+      file:
+        path: /Aplicaciones
+        state: directory
+        mode: 755
+        owner: tomcat
+        group: tomcat
+    - name: Fix SELinux
+      become: true
+      command: '{{ item }}'
+      with_items: '{{ selinux.aut}}'
+        
+        
+      
+      

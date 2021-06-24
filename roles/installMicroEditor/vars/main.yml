@@ -1,0 +1,7 @@
+---
+# vars file for installMicroEditor
+micro_editor:
+  path_install: /usr/local/bin
+  shell: curl https://getmic.ro | bash
+  path_sudoers: /usr/sbin/micro
+  state: link

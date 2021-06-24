@@ -1,0 +1,20 @@
+---
+# vars file for installLoadbalancerTomcat
+firewall:
+  ports:
+#    - 80/tcp
+    - 8080/tcp
+    - 443/tcp
+  services:
+    - http
+    - https
+apache:
+  service_enabled: yes
+  port: 8080
+  nombre_dominio: 'wsencontrack.com'
+  path_httpd_conf: /etc/httpd/conf
+  path_virtual_host: /etc/httpd/conf.d
+  loadbalancer:
+    name: 'wsenk'
+    servers:
+      - 'http://10.190.5.67:8081'

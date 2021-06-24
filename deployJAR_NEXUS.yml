@@ -1,0 +1,5 @@
+---
+- hosts: '{{ host }}'
+  name: 'Deployar e instalar nuevo jar descargado de nexus'
+  roles:
+    - deployJarNEXUS

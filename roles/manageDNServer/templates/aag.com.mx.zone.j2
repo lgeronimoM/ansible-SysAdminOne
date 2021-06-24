@@ -1,0 +1,21 @@
+$ORIGIN	aag.com.mx.
+$TTL 86400
+@   IN  SOA     masterdns.aag.com.mx. root.aag.com.mx. (
+        {{ serialZone }}  ;Serial
+        3600        ;Refresh
+        1800        ;Retry
+        604800      ;Expire
+        86400       ;Minimum TTL
+)
+@       IN  NS          masterdns.aag.com.mx.
+@       IN  Ns          slavedns1.aag.com.mx.
+@       IN  Ns          slavedns2.aag.com.mx.
+@       IN  A           99.192.255.81
+@       IN  A           99.192.255.81
+slavedns1       IN  A   10.10.4.32
+slavedns2       IN  A   10.190.4.32
+masterdns       IN  A   10.190.5.230
+www             IN  A   99.192.255.81
+aag			A	99.192.255.81
+mail			A	99.192.255.81
+webmail			A	99.192.255.81

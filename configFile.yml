@@ -1,0 +1,10 @@
+---
+# configuracion de archivos de configuracion.
+- hosts: "{{ host }}"
+  tasks: 
+    - name: configure properties.
+      lineinfile:
+        path: /etc/kafka/connect-distributed.properties
+        regexp: '^bootstrap.servers='
+        line: bootstrap.servers=10.10.4.33:9092
+      

@@ -1,0 +1,82 @@
+---
+# tasks file for installPlayable
+#instala git
+- name: install git
+  yum:
+    name: git
+    state: latest
+#instala nodejs
+- block: # instala nodejs
+  - name: install dependencies nodejs
+    become: true
+    yum: 
+      name: "{{item}}"
+      state: latest
+    with_items:
+      - gcc-c++
+      - make
+  - name: install nodejs
+    become: true
+    yum:
+      name: nodejs
+      state: latest
+  - name: revisa version nodejs
+    shell: node -v
+    register: versionnode
+  - name: revisa version npm
+    shell: npm -v
+    register: versionnpm
+  - debug: var=versionnode.stdout_lines
+  - debug: var=versionnpm.stdout_lines
+#instala gulp
+- name: install gulp
+  become: true
+  npm: 
+    name: gulp
+    global: yes
+    state: latest
+#instala mongo
+- block: # Instala mongo
+  - name: copy mongo repos
+    become: true
+    copy:
+      src: "{{ role_path }}/files/mongodb-org-3.6.repo"
+      dest: "/etc/yum.repos.d"
+  - name: install mongodb
+    become: true
+    yum:
+      name: mongodb-org
+      state: latest
+  - name: start mongodb and enable it
+    become: true
+    service:
+      name: mongod
+      state: started
+      enabled: no
+# instala Ansible Playable
+- block: # instala Playable
+  - name: crea directorio para ansible playable
+    become: true
+    file:
+      path: "{{ ansibleplayable.dst }}"
+      state: directory
+  - name: clona ansible-playable
+    become: true
+    git:
+      repo: "{{ ansibleplayable.src }}"
+      dest: "{{ ansibleplayable.dst }}"
+      force: yes
+  - name: crea direcotio de datos
+    become: true
+    file:
+      path: "{{ ansibleplayable.datapath }}"
+      state: directory
+      mode: u=rwx,g=rwx,o=rwx
+      force: yes
+  - name: cambia permisos
+    become: true
+    file:
+      dest: "{{ ansibleplayable.dst }}"
+      mode: u=rwx,g=rwx,o=rwx
+      state: directory
+      recurse: yes

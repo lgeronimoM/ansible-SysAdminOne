@@ -1,0 +1,98 @@
+---
+# tasks file for roles/addCustomUsers
+
+- name: Crear el grupo {{ grupo }} si no existe 
+  group:
+    name: "{{ grupo }}"
+    state: present
+  tags: adduser
+
+- name: Creando el nuevo usuario {{ usuario }} con ssh-keygen
+  user:
+    name: "{{ item }}"
+    group: "{{ grupo }}"
+    comment: encontrack sa de cv
+    generate_ssh_key: yes
+    ssh_key_comment: encontrack
+    #ssh_key_passphrase: "{{ usuario }}"
+    ssh_key_type: rsa
+    ssh_key_bits: 4096
+    ssh_key_file: "/home/{{ item }}/.ssh/bastion_hosts_{{ item }}.pem"
+  with_items: "{{ usuario }}"
+  tags: adduser
+
+- name: Respaldar archivo a mi servidor local private key
+  fetch:
+    src: "/home/{{ item }}/.ssh/bastion_hosts_{{ item }}.pem"
+    dest: "/home/ansadmin/PEMFiles/bastion_hosts_{{ item }}.pem"
+    flat: yes
+  with_items: "{{ usuario }}"
+  tags: adduser
+
+- name: Respaldar archivo a mi servidor local public key
+  fetch:
+    src: "/home/{{ item }}/.ssh/bastion_hosts_{{ item }}.pem.pub"
+    dest: /home/ansadmin/PEMFiles/bastion_hosts_{{ item }}.ppk
+    flat: yes
+  with_items: "{{ usuario }}"
+  tags: adduser
+
+- name: Gerando la autenticacion de archivo certificado bastion_hosts_{{ usuario }}.pem.
+  authorized_key:
+    user: "{{ item }}"
+    state: present
+    key: "{{ lookup('file', '/home/ansadmin/PEMFiles/bastion_hosts_{{ item }}.ppk') }}"
+  with_items: "{{ usuario }}"
+  tags: adduser
+
+- name: Enviar archivo pem al usuario por mail
+  mail:
+    host: "{{ smtp_server }}"
+    port: "{{ puerto }}"
+    secure: starttls
+    username: "{{ user_email }}"
+    password: "{{ pass }}"
+    from: "{{ user_email }}"
+    to: "{{ item }}@encontrack.com"
+    subject: Archivo PEM Bastion host.
+    body:  Este es un correo para informarte que tu {{ item }} fue creado en el servidor bastion host con IP privada 172.31.11.253 y su IP publica.
+    attach: "/home/ansadmin/PEMFiles/bastion_hosts_{{ item }}.pem"
+  with_items: "{{ usuario }}"
+  delegate_to: localhost
+  tags: adduser
+
+- name: Eliminar usuario {{ usuario }} 
+  user:
+    name: "{{ item }}"
+    state: absent
+    remove: yes
+  with_items: "{{ usuario }}"
+  tags: deluser
+
+- name: Eliminar archivo private key
+  file:
+    path: /home/ansadmin/PEMFiles/bastion_hosts_{{ item }}.pem
+    state: absent
+  with_items: "{{ usuario }}"
+  tags: deluser
+
+- name: Eliminar archivo public key
+  file:
+    path: /home/ansadmin/PEMFiles/bastion_hosts_{{ item }}.ppk
+    state: absent
+  with_items: "{{ usuario }}"
+  tags: deluser
+
+- name: Enviar confirmacion de baja de usuario
+  mail:
+    host: "{{ smtp_server }}"
+    port: "{{ puerto }}"
+    secure: starttls
+    username: "{{ user_email }}"
+    password: "{{ pass }}"
+    from: "{{ user_email }}"
+    to: luis.geronimo@encontrack.com, samuel.resendiz@encontrack.com
+    subject: Baja de usuarios.
+    body:  "Se eliminan los siguientes usuarios de servidor bastion hosts: {{ usuario }}."
+  delegate_to: localhost
+  tags: deluser

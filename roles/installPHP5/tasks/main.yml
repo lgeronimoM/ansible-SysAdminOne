@@ -1,0 +1,54 @@
+---
+# tasks file for installPHP5
+- name: Update SO
+  become: true
+  yum:
+    name: '*'
+    state: latest
+
+- name: Install PHP
+  become: true
+  yum:
+    name: '{{ item }}'
+    state: latest
+  with_items: '{{ apps }}'
+
+- name: Configure PHP
+  block:
+    - name: Create user "{{ php.user }}"
+      become: true
+      user:
+        name: '{{ php.user }}'
+        comment: Usuario para la web php
+        password: '{{ php.user_pwd }}'
+    - name: 'Establece pagina de estatus de php'
+      become: true
+      copy:
+        src: info.php
+        dest: '{{ php.path_web }}'
+    - name: 'Create webs config directory {{ php.webs_config_path }}'
+      become: true
+      file:
+        path: '{{ php.webs_config_path }}'
+        state: directory
+        mode: 0755
+        group: '{{ php.group }}'
+        owner: '{{ php.user }}'
+    - name: 'Configura archivo de php y php-fpm'
+      become: true
+      template:
+        src: '{{ item.src }}'
+        dest: '{{ item.dest }}'
+        backup: yes
+      with_items: '{{ php.templates }}'
+    - name: Fix SELinux issue
+      become: true
+      command: '{{ item }}'
+      with_items: '{{ selinux.aut }}'
+      
+- name: Start Service
+  become: true
+  service:
+    name: php-fpm
+    state: restarted
+    enabled: '{{ php.service_enable }}'

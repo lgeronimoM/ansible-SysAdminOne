@@ -1,0 +1,29 @@
+---
+- import_playbook: installTools.yml
+- hosts: '{{ host }}'
+  vars:
+      install_nginx: "yes" # yes / no
+      restart_nginx: "yes" # yes / no
+      configure_nginx_for: "php5" #"php5" # php / tomcat / none
+      path_loadbalancer_conf: '/etc/nginx/conf.d/server_intranetv2.conf' 
+      install_app: "php5" # tomcat / php / none / php5
+ 
+  name: Instala toda la infraestructura de Intranet 
+  roles:
+#    - installIntranet #DEPRECADO
+    - { role: installPHP, when: install_app=="php" and configure_nginx_for=="php" }
+    - { role: installPHP5, when: install_app=="php5" and configure_nginx_for=="php5" }
+    - { role: installTomcat, when: install_app=="tomcat" and configure_nginx_for=="tomcat" }
+    - { role: installNginx,  when: install_nginx=="yes" }
+  tasks:
+     - name: Add PHP to Nginx Load Balancer
+       become: true
+       lineinfile: 
+         path: '{{ path_loadbalancer_conf }}'
+         regexp: '#Lista de servidores a conectar por php-fpm' 
+         insertafter: 'php-fpm'
+         line: 'server {{ host }}:9000;'
+       when: (configure_nginx_for=="php" or configure_nginx_for=="php5") and install_nginx=="no" 
+       delegate_to: "{{ groups['nginx_php'][0] }}"
+       delegate_facts: true
+

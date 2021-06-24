@@ -1,0 +1,23 @@
+---
+- hosts: '{{ host }}'
+  vars:
+    to_install:
+      - epel-release
+      - ncdu
+  pre_tasks:
+    - name: Instala epel-release
+      become: true
+      yum:
+        name: epel-release
+        state: latest
+    - name: Instala paquetes
+      become: true
+      yum:
+        name: '{{ item }}'
+        state: latest
+      with_items: '{{ to_install }}'
+  name: Instala herramientas (Tmux, Micro editor)
+  roles:
+    - installMicroEditor
+    - installTmux
+    - installNmon

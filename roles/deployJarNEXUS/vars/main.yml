@@ -1,0 +1,13 @@
+---
+# vars file for roles/deployeJarNEXUS
+
+filejar: replacetransformation-1.2.0.jar
+grupoid: com.encontrack.kafka.connect.transform 
+artefacto: replacetransformation
+repositorio: 'https://nexus.encontrack.com/repository/enk-repo-releases'
+usuario: enk_deploy
+clave: encontrack2020
+distribucion: 1.2.0
+dirDeploy: /usr/share/java/replacetransformation
+#dirDeploy: /tmp/replacetransformation
+srv: confluent-kafka-connect

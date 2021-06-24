@@ -1,0 +1,79 @@
+---
+# vars file for installNginx
+apps:
+  - epel-release
+  - nginx
+  - policycoreutils-python
+firewall:
+  ports:
+    php:
+      # default web
+      - 80/tcp
+    tomcat:
+      # default tomcat
+      - 8080/tcp
+nginx:
+  service_enabled: yes
+  php:
+    templates:
+      - { 'src':'nginx.j2', 'dest':'/etc/nginx/nginx.conf' }
+      - { 'src':'server_intranetv2.j2', 'dest':'/etc/nginx/conf.d/server_intranetv2.conf'}
+  tomcat:
+    templates:
+      - { 'src':'nginx_tomcat.j2', 'dest':'/etc/nginx/nginx.conf' }
+      - { 'src':'server_tomcat_intranetv2.j2', 'dest':'/etc/nginx/conf.d/server_intranetv2.conf' }
+#  path_conf: /etc/nginx/nginx.conf
+  user: nginx
+  error_log: /var/log/nginx/error.log
+  pid: /run/nginx.pid
+  include: /usr/share/nginx/modules/*.conf
+  worker_processes: 4
+  access_log: /var/log/nginx/access.log
+  sendfile: 'on'
+  tcp_nopush: 'on'
+  tcp_nodelay: 'on'
+  keepalive_timeout: 65
+  types_hash_max_size: 2048
+  include_mime: /etc/nginx/mime.types
+  default_type: application/octet-stream
+  include_modules: /etc/nginx/conf.d/*.conf
+  proxy_caching:
+    keys_zone: edge-cache
+    cache_path: /var/cache/nginx levels=1:2 keys_zone=edge-cache:10m inactive=20m max_size=1g
+    temp_path: /var/cache/nginx/tmp       
+    cache_lock: 'on'
+    cache_use_stale: updating
+    proxy_bind: 0.0.0.0
+    proxy_cache_valid:
+      - proxy_cache_valid 200 302 10m;
+      - proxy_cache_valid 301 1h;
+      - proxy_cache_valid any 1m;
+  events:
+    worker_connections: 1024
+  server:
+    php:
+      listen: 80
+      name: '{{inventory_hostname}}'
+      root: /var/www/html
+    tomcat:
+      listen: 8080
+      name: '{{inventory_hostname}}'
+      root: /var/www/html
+    
+  servers:
+    php:
+      - 10.190.5.67:9000
+    tomcat:
+      - 10.190.5.67:8081
+selinux:
+  aut:
+    php:
+      - restorecon -R -v /var/www
+      - restorecon -R -v /var/www/html
+      - chcon -R -t httpd_sys_rw_content_t /Aplicaciones
+    tomcat:
+      - restorecon -R -v /var/www
+      - restorecon -R -v /var/www/html
+      - setsebool -P httpd_can_network_connect 1
+      - restorecon -R /Aplicaciones
+    

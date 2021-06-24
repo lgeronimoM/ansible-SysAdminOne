@@ -1,0 +1,5 @@
+---
+- hosts: '{{ host }}'
+  name: 'Instala y configura PHP'
+  roles:
+    - installPHP5

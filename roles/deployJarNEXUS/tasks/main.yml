@@ -1,0 +1,30 @@
+---
+# tasks file for roles/deployeJarNEXUS
+
+- name: Instalar dependencia python-lxml
+  yum:
+    name: python-lxml
+    state: latest
+
+- name: Create directorio de deploy {{ dirDeploy }}
+  file:
+    path: "{{ dirDeploy }}"
+    state: directory
+
+- name: Descargar JAR {{ filejar }} desde Nexus
+  maven_artifact:
+    group_id: "{{ grupoid }}"
+    artifact_id: "{{ artefacto }}"
+    repository_url: "{{ repositorio }}"
+    username: "{{ usuario }}"
+    password: "{{ clave }}"
+    version: "{{ distribucion }}"
+    dest: "{{ dirDeploy }}/{{ filejar }}"
+    owner: root
+    group: root
+    mode: '644'
+
+- name: Reiniciar servicio {{ srv }}
+  service:
+    name: "{{ srv }}"
+    state: restarted

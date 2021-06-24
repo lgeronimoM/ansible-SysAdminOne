@@ -1,0 +1,5 @@
+---
+- hosts: '{{ host }}'
+  name: Instala ZSH
+  roles:
+    - installZsh

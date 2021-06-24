@@ -1,0 +1,7 @@
+---
+# tasks file for installNmon
+- name: Install nmon
+  become: true
+  yum:
+    name: nmon
+    state: latest

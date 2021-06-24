@@ -1,0 +1,6 @@
+---
+- hosts: "{{ host }}"
+  become: true
+  name: 'Configuracion e instalacion DNS Server'
+  roles:
+    - manageDNServer

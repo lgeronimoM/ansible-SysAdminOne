@@ -1,0 +1,10 @@
+---
+# info
+- hosts: "{{ host }}"
+  become: yes
+  tasks:
+    - name: obtener ipv4
+      lineinfile:
+        path: /tmp/text.txt
+        regexp: '^SELINUX='
+        line: "{{ ansible_eth0.ipv4.address }}"

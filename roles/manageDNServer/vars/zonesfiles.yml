@@ -1,0 +1,18 @@
+---
+# vars configurations zones domain and subdomain
+zoneDomain:
+  -  aag.com.mx
+  -  aagelectronica.com
+  -  amtelser.com
+  -  cpv3.com
+  -  encontrack.com
+  -  flotaencontrol.com
+  -  flotcon.com
+  -  instalacionmexico.com
+  -  5.190.10.in-addr.arpa
+  -  6.190.10.in-addr.arpa
+
+serialZone: 2020051203
+
+subDominio:
+  -  encontrack.com

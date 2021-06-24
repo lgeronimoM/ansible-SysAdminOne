@@ -1,0 +1,49 @@
+---
+# tasks file for installLoadbalancerTomcat
+- name: Install Httpd
+  become: true
+  yum:
+    name: httpd
+    state: latest
+
+- name: Configure Httpd
+  block:
+    - name: Configura httpd.conf
+      become: true
+      template:
+        src: httpd.j2
+        dest: '{{ apache.path_httpd_conf }}/httpd.conf'
+        backup: yes
+    - name: Configura virtual host
+      become: true
+      template:
+        src: virtualHost.j2
+        dest: '{{ apache.path_virtual_host}}/{{ apache.nombre_dominio }}.conf'
+        backup: true
+    
+- name: Configure Firewall
+  block:
+    - name: Add ports to Firewall
+      become: true
+      firewalld:
+        port: '{{ item }}'
+        permanent: true
+        state: enabled
+      with_items: '{{ firewall.ports }}'
+    - name: Add services to Firewall
+      become: true
+      firewalld:
+        service: '{{ item }}'
+        state: enabled
+      with_items: '{{ firewall.services }}'
+    - name: Enable httpd
+      become: true
+      shell: 'setsebool httpd_can_network_connect on -P'
+
+- name: Start Apache
+  become: true
+  service:
+    name: httpd
+    state: restarted
+    enabled: '{{ apache.service_enabled }}'
+    

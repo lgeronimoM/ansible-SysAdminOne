@@ -1,0 +1,50 @@
+# For more information on configuration, see:
+#   * Official English Documentation: http://nginx.org/en/docs/
+#   * Official Russian Documentation: http://nginx.org/ru/docs/
+# Configuracion para Intranet
+#
+
+user {{ nginx.user }};
+worker_processes {{ nginx.worker_processes }};
+error_log {{ nginx.error_log }};
+pid {{ nginx.pid }};
+
+# Load dynamic modules. See /usr/share/nginx/README.dynamic.
+include {{ nginx.include }};
+
+events {
+    worker_connections {{ nginx.events.worker_connections }};
+}
+
+http {
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  {{ nginx.access_log }}  main;
+
+    sendfile            {{ nginx.sendfile }};
+    tcp_nopush          {{ nginx.tcp_nopush }};
+    tcp_nodelay         {{ nginx.tcp_nodelay }};
+    keepalive_timeout   {{ nginx.keepalive_timeout }};
+    types_hash_max_size {{ nginx.types_hash_max_size }};
+
+    include             {{ nginx.include_mime }};
+    default_type        {{ nginx.default_type }};
+
+    # Load modular configuration files from the /etc/nginx/conf.d directory.
+    # See http://nginx.org/en/docs/ngx_core_module.html#include
+    # for more information.
+    include {{ nginx.include_modules }};
+
+    proxy_cache_path {{ nginx.proxy_caching.cache_path }};
+    proxy_temp_path {{ nginx.proxy_caching.temp_path }};
+    proxy_cache_lock {{ nginx.proxy_caching.cache_lock }};
+    proxy_cache_use_stale {{ nginx.proxy_caching.cache_use_stale }};
+    proxy_bind {{ nginx.proxy_caching.proxy_bind }};
+
+    {% for cache_valid in nginx.proxy_caching.proxy_cache_valid %}
+    {{ cache_valid }}
+    {% endfor %}
+}
+

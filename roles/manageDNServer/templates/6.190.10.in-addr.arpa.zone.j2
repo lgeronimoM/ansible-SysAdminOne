@@ -1,0 +1,22 @@
+$ORIGIN 6.190.10.in-addr.arpa.
+$TTL 86400
+@   IN  SOA     masterdns.encontrack.com. root.encontrack.com. (
+        {{ serialZone }}  ;Serial
+        3600        ;Refresh
+        1800        ;Retry
+        604800      ;Expire
+        86400       ;Minimum TTL
+)
+@       IN  NS          masterdns.encontrack.com.
+@       IN  Ns          slavedns1.encontrack.com.
+@       IN  Ns          slavedns2.encontrack.com.
+37		PTR		web-services.encontrack.com.
+35		PTR		intranet.encontrack.com.
+14		PTR		cache.encontrack.com.	
+36		PTR		geolocation.encontrack.com.
+48		PTR		bd-cpv1.encontrack.com.
+47		PTR		bd-cpv2.encontrack.com.
+25		PTR		historicos.encontrack.com.
+34		PTR		sincronizadores.encontrack.com.
+49		PTR		pruebas-cache.encontrack.com.
+40		PTR		webinterno.encontrack.com.

@@ -1,0 +1,85 @@
+---
+# vars file for roles/kafka-connect
+# Dependencias
+pkgs:
+  - java-1.8.0-openjdk
+  - wget
+  - curl
+  - which
+  - zip
+  - unzip
+  - python-pip
+
+# Paquetes kafka confluents
+CFCpkg: confluent-community-2.12
+
+# Paths confluents
+dirCFhub: /usr/share/java/confluent-hub-client
+dirJava: /usr/share/java
+
+# URLs paquetes repo, rpm, key etc.
+keyConfluent: https://packages.confluent.io/rpm/5.4/archive.key
+CFHubClient: http://client.hub.confluent.io/confluent-hub-client-latest.tar.gz
+enkRepoReleases: 'https://nexus.encontrack.com/repository/enk-repo-releases'
+enkRepo: 'https://nexus.encontrack.com/repository/enk-repo'
+enkRepoRaiz: 'https://nexus.encontrack.com/repository'
+
+# Scripts files
+sh_installConfluent: /home/ansadmin/roles/installKafkaConnect/files/confluent-hub-install.sh 
+
+# Archivos templates .ZIP
+restZIP: kafka-connect-rest-1.0.zip
+
+# install connectores de confluent.
+kafka_connect_confluent_hub_plugins_dest: /usr/share/java
+kafka_connect_confluent_hub_plugins: 
+  - debezium/debezium-connector-mysql:latest
+  - confluentinc/connect-transforms:latest
+  - debezium/debezium-connector-mongodb:1.2.0 
+srv_confluent_kafka_connect: confluent-kafka-connect
+
+# vars properties archivo connect-distributed.properties QRO
+
+#bootstrapservers: '10.10.4.33:9092,10.10.4.109:9092'
+#groupid: connect-cluster-mia
+#offset_storage_topic: connect-offsets-mia-v2
+#replication_topic: 2
+#partitions_topic: 25
+#storage_topic_configs: connect-configs-mia-v3
+#replication_topic_configs: 1
+#partitions_topic_configs: 1
+#storage_topic_status: connect-status-mia-v2
+#replication_topic_status: 2
+#partitions_topic_status: 5
+#port_kafka_connect: 8083
+
+# vars properties archivo connect-distributed.properties MIAMI
+
+#bootstrapservers: '10.190.6.172:9092,10.190.6.173:9092,10.190.6.203:9092,10.190.6.204:9092'
+#groupid: connect-cluster-mia
+#offset_storage_topic: connect-offsets-mia-v2
+#interval_topic: 90000
+#timeout_topic: 20000
+#storage_topic_configs: connect-configs-mia-v3
+#replication_topic_configs: 1
+#partitions_topic_configs: 1
+#storage_topic_status: connect-status-mia-v2
+#replication_topic_status: 2
+#partitions_topic_status: 5
+#port_kafka_connect: 8083
+
+# vars properties archivo connect-distributed.properties AWS
+
+bootstrapservers: 'b-1.msk-encontrack.wh5d7c.c6.kafka.us-east-1.amazonaws.com:9092,b-2.msk-encontrack.wh5d7c.c6.kafka.us-east-1.amazonaws.com:9092,b-3.msk-encontrack.wh5d7c.c6.kafka.us-east-1.amazonaws.com:9092'
+groupid: 'connect-cluster-aws'
+offset_storage_topic: connect-offsets
+replication_topic: 3
+offset_storage_partitions: 5
+storage_topic_configs: connect-configs
+replication_topic_configs: 3
+partitions_topic_configs: 1
+storage_topic_status: connect-status
+replication_topic_status: 3
+partitions_topic_status: 1
+port_kafka_connect: 8083
+rest_advertised_host_name: 'aws-kafka-connect-01.eps-encontrack.com'

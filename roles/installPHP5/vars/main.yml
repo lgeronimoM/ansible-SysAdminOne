@@ -1,0 +1,25 @@
+---
+# vars file for installPHP5
+apps:
+  - php-fpm
+  - php
+  - php-soap
+php:
+  user: webuser
+  group: webuser
+  user_pwd: encontrack
+  service_enable: yes
+  webs_config_path: '/Aplicaciones' #Path de configuraciones de los sitios
+  path_web: /var/www/html/
+  listen_fastcgi: 0.0.0.0:9000
+  listen_allowed_clients: '{{ inventory_hostname }}'
+  pm_max_children: 50
+  templates:
+    - { 'src':'php.j2', 'dest':'/etc/php.ini' }
+    - { 'src': 'www.j2', 'dest':'/etc/php-fpm.d/www.conf'}
+  
+selinux:
+  aut:
+    - restorecon -R /Aplicaciones
+    - chcon -R -t httpd_sys_rw_content_t /Aplicaciones
+    - setsebool -P httpd_can_network_connect 1

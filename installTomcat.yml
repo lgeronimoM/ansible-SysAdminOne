@@ -1,0 +1,5 @@
+---
+- hosts: '{{ host }}'
+  name: Instala Tomcat
+  roles:
+    - installTomcat

@@ -1,0 +1,28 @@
+---
+- hosts: ToolsPro
+  tasks:
+    - name: Instalar firewalld
+      yum: name={{ item }} state=latest
+      with_items:
+        - firewalld
+    - name: Habilitar firewalld
+      service: name=firewalld state=started enabled=yes
+    - name: Configurar zone DROP
+      firewalld:
+        zone: drop
+        state: enabled
+        permanent: yes
+        immediate: yes
+    - name: Habilitar los puertos
+      firewalld:
+        zone: drop
+        port: 22/tcp
+        permanent: yes
+        immediate: yes
+        state: present
+      firewalld:                                                                                                                                           
+        zone: drop                                                                                                                                         
+        port: 57772/tcp                                                                                                                                       
+        permanent: yes                                                                                                                                     
+        immediate: yes                                                                                                                                     
+        state: present

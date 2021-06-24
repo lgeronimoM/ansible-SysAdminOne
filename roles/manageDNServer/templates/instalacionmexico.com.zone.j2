@@ -1,0 +1,23 @@
+$ORIGIN	instalacionmexico.com.
+$TTL 86400
+@   IN  SOA     masterdns.instalacionmexico.com. root.instalacionmexico.com. (
+        {{ serialZone }}  ;Serial
+        3600        ;Refresh
+        1800        ;Retry
+        604800      ;Expire
+        86400       ;Minimum TTL
+)
+@       IN  NS          masterdns.instalacionmexico.com.
+@       IN  Ns          slavedns1.instalacionmexico.com.
+@       IN  Ns          slavedns2.instalacionmexico.com.
+@       IN  A           99.192.255.84
+@       IN  A           99.192.255.84
+slavedns1       IN  A   10.10.4.32
+slavedns2       IN  A   10.190.4.32
+masterdns       IN  A   10.190.5.230
+instalacionmexico	A	99.192.255.84
+www			A	99.192.255.84
+cam			A	99.192.255.84
+www.cam			A	99.192.255.84
+portalcentros		A	99.192.255.84
+portalcentros2		A	99.192.255.84

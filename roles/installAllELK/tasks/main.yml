@@ -1,0 +1,61 @@
+---
+# tasks file for installAllELK
+
+- name: Install All RPMs
+  block:
+    - name: Install All RPMs
+      become: true
+      yum:
+        name: '{{ item }}'
+        state: present
+      with_items: '{{ rpms }}'
+      register: results
+    - debug:
+        var: results.results[0].results
+
+- name: Configure Elasticsearch
+  block:
+    - name: Copy configuration
+      become: true
+      template:
+        src: '{{ elastic.configTemplate }}'
+        dest: '{{ elastic.configPath }}'
+        backup: yes
+    - name: Start Elasticsearch service
+      become: true
+      service:
+        name: elasticsearch
+        state: started
+- name: Configure Kibana
+  block:
+    - name: Copy configuration
+      become: true
+      template:
+        src: '{{ kibana.configTemplate }}'
+        dest: '{{ kibana.configPath }}'
+        backup: yes
+    - name: Start kibana service
+      become: true
+      service:
+        name: kibana
+        state: started
+- name: Configure Nginx
+  block:
+    - name: Copy configuration
+      become: true
+      template:
+        src: '{{ nginx.configTemplate }}'
+        dest: '{{ nginx.configPath }}{{ host }}.conf'
+    - name: Create htpasswd
+      become: true
+      htpasswd:
+        path: '{{ nginx.htPath }}'
+        name: '{{ nginx.htName }}'
+        password: '{{ nginx.htPwd }}'
+    - name: Start Nginx
+      become: true
+      service:
+        name: nginx
+        state: started
+        
+        

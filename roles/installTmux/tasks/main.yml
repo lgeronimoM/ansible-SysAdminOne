@@ -1,0 +1,8 @@
+---
+# tasks file for installTmux
+- name: Install tmux
+  become: true
+  yum:
+    name: tmux
+    state: present
+    
